@@ -1,6 +1,6 @@
 require("dotenv").config();
 var axios = require("axios");
-var spotify = require("node-spotify-api");
+var Spotify = require("node-spotify-api");
 var moment = require("moment");
 var keys = require("./keys.js");
 
@@ -9,6 +9,32 @@ function findByRater(rater) {
     return function(ele) {
         return rater === ele.Source;
     }
+}
+function printTracks(tracks){
+
+    if(tracks.length > 1)
+        console.log("-----TRACKS-----");
+    else
+        console.log("-----TRACK-----");
+
+    for(var j = 0; j < tracks.length; j++){
+
+        var artists = ""
+
+        for(var i = 0; i < tracks[j].artists.length; i++){
+            artists += tracks[j].artists[i].name;
+
+            if(i < tracks[j].artists.length - 1){
+                artists += ", "
+            }
+        }
+
+        console.log("Artists: %s\nName: %s\nPreview: %s\nAlbum: %s", artists, tracks[j].name, tracks[j].preview_url, tracks[j].album.name);
+        
+        if(j < tracks.length - 1)
+            console.log("--");
+    }
+    console.log("----------");
 }
 
 // Get our arguments
@@ -65,6 +91,33 @@ switch(args[0]){
         }).catch((err) => {
             console.log("An error has occurred: " + err);
         });
+        break;
+    case "spotify-this-song":
+        var spotify = new Spotify(keys.spotify);
+        var trackName = "The Sign";
+        if(args.length > 1){
+            trackName = args[1];
+            for(var i = 2; i < args.length; i++){
+                trackName += " " + args[i];
+            }   
+        }
+
+        spotify.search({ type: "track", query: trackName }).then((res) => {
+            var track = res.tracks.items.find((ele) => trackName === ele.name);
+            // Exact Track name found
+            if(track){
+                console.log("I found this match");
+                printTracks([track]);
+            }
+            else{
+                console.log("I couldn't find an exact match, here's 10 results from spotify's search");
+                printTracks(res.tracks.items.slice(0, 10));
+            }
+
+        }).catch((err) => {
+            console.log("An error has occurred: " + err);
+        });
+
         break;
     default:
         console.log("I don't understand that command.");
