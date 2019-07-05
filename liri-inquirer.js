@@ -111,7 +111,7 @@ function selectOption(option, queryTokens) {
                     printTracks([track]);
                 }
                 else {
-                    console.log("I couldn't find an exact match, here's 10 results from spotify's search");
+                    console.log("I couldn't find an exact match, here's some results from spotify's search");
                     printTracks(res.tracks.items.slice(0, 10));
                 }
 
